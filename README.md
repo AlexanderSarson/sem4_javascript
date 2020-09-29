@@ -401,8 +401,287 @@ dos_Detector.on('DOS_message', (args) => {
 # ES6,7,8,ES-next and TypeScript
 ## Provide examples with es-next, running in a browser, using Babel and Webpack
 ## Explain the two strategies for improving JavaScript: Babel and ES6 + ES-Next, versus Typescript. What does it require to use these technologies: In our backend with Node and in (many different) Browsers
+Babel and ES6 + ES-Next makes it possible to use the newest features of the JavaScript language on older browsers and nodejs environments because it converts the new features into backwards compatible versions of JavaScript.
+TypeScript simplifies JavaScript code, making it easier to read and debug, it provides static checking by helping you finding bugs because you can assign types to variables so you are always sure what input your functions and variables contains
 ## Provide examples to demonstrate the benefits of using TypeScript, including, types, interfaces, classes and generics
-## Explain how we can get typescript code completion for external imports.
-## Explain the ECMAScript Proposal Process for how new features are added to the language (the TC39 Process)
+### classes
+```javascript
+/*
+A) The declaration below defines a Shape class, 
+which as it's only properties has a color field +  a getArea() and a getPerimeter() function which both returns undefined. 
+This is the closest we get to an abstract method in Java.
+*/
 
+abstract class Shape {
+  private _color: string;
+  constructor(color: string) {
+    this._color = color;
+  }
+  abstract get area(): number;
+  abstract get perimeter(): number;
+  get color(): string {
+    return this._color;
+  }
+  set color(color: string) {
+    this._color = color;
+  }
+  toString(): string {
+    return `Shape with color ${this._color}`;
+  }
+}
+//let shape = new Shape("blue");
+
+// B) Create a new class Circle that should extend the Shape class.
+/*
+Provide the class with:
+A radius field
+A constructor that takes both colour and radius.
+Overwritten versions of the methods defined in the Base
+Getter/Setter for radius
+Test the class constructor, the getters/setters and the three methods.
+*/
+class Circle extends Shape {
+  private _radius: number;
+  constructor(color: string, radius: number) {
+    super(color);
+    this._radius = radius;
+  }
+  get area(): number {
+    return Math.PI * Math.pow(this._radius, 2);
+  }
+  get perimeter(): number {
+    return 2 * Math.PI * this._radius;
+  }
+  get radius(): number {
+    return this._radius;
+  }
+  set radius(radius: number) {
+    this._radius = radius;
+  }
+}
+```
+### Generics
+```javascript
+
+/**
+ * a) Implement a generic function which will take an array of any kind,
+ * and return the array reversed (just use the built-in reverse function),
+ * so the three first calls below will print the reversed array, and the last call will fail.
+ */
+function reverseArr<T>(arg: T[]): T[] {
+  return arg.reverse();
+}
+console.log(
+  reverseArr<string>(["a", "b", "c"])
+);
+console.log(
+  reverseArr<number>([1, 2, 3])
+);
+console.log(
+  reverseArr<boolean>([true, true, false])
+);
+```
+```javascript
+
+// b) Implement a generic Class DataHolder that will allow us to create instances as sketched below:
+
+class DataHolder<T> {
+  private _value: T;
+  constructor(value: T) {
+    this._value = value;
+  }
+  get value(): T {
+    return this._value;
+  }
+  set value(value: T) {
+    this._value = value;
+  }
+}
+
+let d = new DataHolder<string>("Hello");
+console.log(d.value);
+d.value = "World";
+console.log(d.value);
+
+let d2 = new DataHolder<number>(123);
+console.log(d2.value);
+d2.value = 500;
+console.log(d2.value);
+```
+### Interfaces
+```javascript
+// a Create a TypeScript interface IBook, which should encapsulate information about a book
+  interface IBook {
+    title: string;
+    readonly author: string;
+    published?: Date;
+    pages?: number;
+  }
+
+  class Book implements IBook {
+    title: string;
+    author: string;
+    published?: Date | undefined;
+    pages?: number | undefined;
+    constructor(title: string, author: string) {
+      this.title = title;
+      this.author = author;
+    }
+  }
+  const book = new Book("Harry Potter", "J.K. Rowling");
+  console.log("f: ", book);
+  book.pages = 300;
+  console.log("f: ", book);
+```
+
+## Explain how we can get typescript code completion for external imports.
+npm install -g typescript
+## Explain the ECMAScript Proposal Process for how new features are added to the language (the TC39 Process)
+    Stage 0: Strawperson — to allow input into specifications
+    Stage 1: Proposal — make the case for the addition, describe the solution and identify the potential challenges
+    Stage 2: Draft — describe the syntax and semantics using formal spec language
+    Stage 3: Candidate — states that further refinement will need feedback from implementations and users
+    Stage 4: Finished — states that the addition is ready for inclusion in the formal ECMAScript standard
  
+# Callbacks, Promises and async/await
+## Explain about (ES-6) promises in JavaScript including, the problems they solve, a quick explanation of the Promise API and:
+![alt text](https://media.prod.mdn.mozit.cloud/attachments/2018/04/18/15911/32e79f722e83940fdaea297acdb5df92/promises.png)
+A Promise is a proxy for a value not necessarily known when the promise is created. It allows you to associate handlers with an asynchronous action's eventual success value or failure reason. This lets asynchronous methods return values like synchronous methods: instead of immediately returning the final value, the asynchronous method returns a promise to supply the value at some point in the future.
+
+A Promise is in one of these states:
+
+    pending: initial state, neither fulfilled nor rejected.
+    fulfilled: meaning that the operation was completed successfully.
+    rejected: meaning that the operation failed.
+Promises solve the problem of callback hell which can quickly lead to unmanageable code
+
+## Example(s) that demonstrate how to avoid the callback hell  (“Pyramid of Doom")
+```javascript
+// how to avoid this
+firstFunction(args, function() {
+  secondFunction(args, function() {
+    thirdFunction(args, function() {
+      // And so on…
+    });
+  });
+});
+
+// split your functions up and use promises
+const getBeef = nextStep => {
+  const fridge = leftFright;
+  const beef = getBeefFromFridge(fridge);
+  nextStep(beef);
+};
+
+const cookBeef = (beef, nextStep) => {
+  const workInProgress = putBeefinOven(beef);
+  setTimeout(function() {
+    nextStep(workInProgress);
+  }, 1000 * 60 * 20);
+};
+
+const makeBurger = () => {
+  return getBeef()
+    .then(beef => cookBeef(beef))
+    .then(cookedBeef => getBuns(beef))
+    .then(bunsAndBeef => putBeefBetweenBuns(bunsAndBeef));
+};
+
+// Make and serve burger
+makeBurger().then(burger => serve(burger));
+
+```
+
+## Example(s) that demonstrate how to execute asynchronous (promise-based) code in serial or parallel
+```javascript
+function getSecureRandoms(size){
+  return new Promise((resolve,reject)=>{
+    crypto.randomBytes(size, function(err, buffer) {
+      if(err) return reject(new Error("something went wrong"))
+      let secureHex = buffer.toString('hex');
+      return resolve(secureHex)
+    });
+  })
+}
+
+d
+const p1 = getSecureRandoms(48)
+const p2 = getSecureRandoms(40)
+const p3 = getSecureRandoms(32)
+const p4 = getSecureRandoms(24)
+const p5 = getSecureRandoms(16)
+const p6 = getSecureRandoms(8)
+const promises = [p1,p2,p3,p4,p5,p6]
+Promise.all(promises).then(data => console.log(data.join(", ")))
+
+```
+## Example(s) that demonstrate how to implement our own promise-solutions.
+```javascript
+function getSecureRandoms(size){
+  return new Promise((resolve,reject)=>{
+    crypto.randomBytes(size, function(err, buffer) {
+      if(err) return reject(new Error("something went wrong"))
+      let secureHex = buffer.toString('hex');
+      return resolve(secureHex)
+    });
+  })
+}
+```
+## Example(s) that demonstrate error handling with promises
+```javascript
+function getSecureRandoms(size){
+  return new Promise((resolve,reject)=>{
+    crypto.randomBytes(size, function(err, buffer) {
+      if(err) return reject(new Error("something went wrong"))
+      let secureHex = buffer.toString('hex');
+      return resolve(secureHex)
+    });
+  })
+}
+getSecureRandoms(48)
+.then(data => whatever)
+.catch(err => console.err(err))
+```
+
+## Explain about JavaScripts async/await, how it relates to promises and reasons to use it compared to the plain promise API.
+The async/await syntax is cleaner and more readable as you can read it line by line. It also provides us with the normal try/catch
+Provide examples to demonstrate 
+Why this often is the preferred way of handling promises
+Error handling with async/await
+      Serial or parallel execution with async/await.
+```javascript
+function getSecureRandoms(size){
+  return new Promise((resolve,reject)=>{
+    crypto.randomBytes(size, function(err, buffer) {
+      if(err) return reject(new Error("something went wrong"))
+      let secureHex = buffer.toString('hex');
+      return resolve(secureHex)
+    });
+  })
+}
+const testAsync = async () => {
+  try{
+    const p1 = getSecureRandoms(48);
+    const p2 = getSecureRandoms(40);
+    const p3 = getSecureRandoms(32);
+    const p4 = getSecureRandoms(24);
+    const p5 = getSecureRandoms(16);
+    const p6 = getSecureRandoms(8);
+    // serial execution
+    const res1 = await p1;
+    const res2 = await p2;
+    const res3 = await p3;
+    const res4 = await p4;
+    const res5 = await p5;
+    const res6 = await p6;
+    // parallel execution
+    await Promise.all(p1, p2, p3, p4, p5, p6);
+    console.log(res1, res2, res3, res4, res5, res6);
+  } catch (Exception err) {
+    console.log(err)
+  }
+  
+};
+
+testAsync();
+```
