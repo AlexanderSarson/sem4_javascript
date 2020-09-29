@@ -645,7 +645,7 @@ getSecureRandoms(48)
 
 ## Explain about JavaScripts async/await, how it relates to promises and reasons to use it compared to the plain promise API.
 The async/await syntax is cleaner and more readable as you can read it line by line. It also provides us with the normal try/catch
-Provide examples to demonstrate 
+### Provide examples to demonstrate 
 Why this often is the preferred way of handling promises
 Error handling with async/await
       Serial or parallel execution with async/await.
